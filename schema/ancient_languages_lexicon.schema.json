@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://example.com/schemas/angelic_lexicon.schema.json",
-  "title": "Angelic Name Generator Lexical Database",
+  "$id": "https://raw.githubusercontent.com/JemmaFromJupiter/jsonschema/refs/heads/main/schema/ancient_languages_lexicon.schema.json",
+  "title": "Ancient Name Generator Lexical Database",
   "description": "Validates the v3 concept-grouped lexicon: languageRegistry + categoryRegistry + an array of concept entries, each holding one or more per-language lexicalElements.",
   "type": "object",
   "required": ["systemInfo", "languageRegistry", "categoryRegistry", "lexicon"],
@@ -187,12 +187,12 @@
 
         "weight": {
           "type": "object",
-          "required": ["frequency", "rarity", "angelicSuitability"],
+          "required": ["frequency", "rarity", "ancientSuitability"],
           "additionalProperties": false,
           "properties": {
             "frequency": { "type": "number", "minimum": 0, "maximum": 1 },
             "rarity": { "type": "number", "minimum": 0, "maximum": 1 },
-            "angelicSuitability": { "type": "number", "minimum": 0, "maximum": 1 }
+            "ancientSuitability": { "type": "number", "minimum": 0, "maximum": 1 }
           }
         }
       }
