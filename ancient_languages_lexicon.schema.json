@@ -1,0 +1,201 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/schemas/angelic_lexicon.schema.json",
+  "title": "Angelic Name Generator Lexical Database",
+  "description": "Validates the v3 concept-grouped lexicon: languageRegistry + categoryRegistry + an array of concept entries, each holding one or more per-language lexicalElements.",
+  "type": "object",
+  "required": ["systemInfo", "languageRegistry", "categoryRegistry", "lexicon"],
+  "additionalProperties": false,
+  "properties": {
+    "systemInfo": {
+      "type": "object",
+      "description": "Free-form metadata about the dataset itself; not structurally validated beyond being an object."
+    },
+
+    "languageRegistry": {
+      "type": "object",
+      "description": "Map of language ID -> language metadata. Keys MUST match pattern ^LANG-[A-Z]{3,4}$.",
+      "patternProperties": {
+        "^LANG-[A-Z]{3,4}$": {
+          "type": "object",
+          "required": ["name", "family", "branch", "period", "script", "role", "why"],
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string" },
+            "family": { "type": "string" },
+            "branch": { "type": "string" },
+            "period": { "type": "string" },
+            "script": { "type": "string" },
+            "role": { "type": "string", "enum": ["primary", "secondary", "tertiary", "tertiary / flavor-only"] },
+            "why": { "type": "string" }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "categoryRegistry": {
+      "type": "object",
+      "description": "Map of category ID -> category metadata. Keys MUST match pattern ^CAT-[A-Z]+$.",
+      "patternProperties": {
+        "^CAT-[A-Z]+$": {
+          "type": "object",
+          "required": ["name", "parent", "description"],
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string" },
+            "parent": {
+              "oneOf": [
+                { "type": "string", "pattern": "^CAT-[A-Z]+$" },
+                { "type": "null" }
+              ]
+            },
+            "description": { "type": "string" }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "lexicon": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/conceptEntry" }
+    },
+
+    "combinationEngine": {
+      "type": "object",
+      "description": "Free-form documentation of generation logic; not structurally validated."
+    }
+  },
+
+  "definitions": {
+    "conceptEntry": {
+      "type": "object",
+      "required": ["id", "concept", "categoryIds", "meaning", "lexicalElements"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^LEX-[0-9]{4}$" },
+        "concept": { "type": "string", "minLength": 1 },
+        "categoryIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "pattern": "^CAT-[A-Z]+$" }
+        },
+        "meaning": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["gloss", "priority"],
+            "additionalProperties": false,
+            "properties": {
+              "gloss": { "type": "string" },
+              "priority": { "type": "integer", "minimum": 1 }
+            }
+          }
+        },
+        "lexicalElements": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/lexicalElement" }
+        }
+      }
+    },
+
+    "lexicalElement": {
+      "type": "object",
+      "required": [
+        "languageId", "root", "transliteration", "nativeScript",
+        "partOfSpeech", "gender", "declension",
+        "pronunciation", "phonology", "morphology", "combinationRules",
+        "compatibility", "examples", "weight"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "languageId": { "type": "string", "pattern": "^LANG-[A-Z]{3,4}$" },
+        "root": { "type": "string", "minLength": 1 },
+        "transliteration": { "type": "string" },
+        "nativeScript": { "type": "string" },
+        "partOfSpeech": { "type": "string" },
+        "gender": { "type": "string" },
+        "declension": { "type": "string" },
+
+        "pronunciation": {
+          "type": "object",
+          "required": ["ipa", "syllables", "stress"],
+          "additionalProperties": false,
+          "properties": {
+            "ipa": { "type": "string" },
+            "syllables": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+            "stress": { "type": "integer", "minimum": 1 }
+          }
+        },
+
+        "phonology": {
+          "type": "object",
+          "required": ["startsWith", "endsWith", "vowels", "consonants", "preferredFollowingSounds", "avoidFollowing"],
+          "additionalProperties": false,
+          "properties": {
+            "startsWith": { "type": "string" },
+            "endsWith": { "type": "string" },
+            "vowels": { "type": "array", "items": { "type": "string" } },
+            "consonants": { "type": "array", "items": { "type": "string" } },
+            "preferredFollowingSounds": { "type": "array", "items": { "type": "string" } },
+            "avoidFollowing": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+
+        "morphology": {
+          "type": "object",
+          "required": ["canPrefix", "canSuffix", "canStandAlone", "preferredPosition"],
+          "additionalProperties": false,
+          "properties": {
+            "canPrefix": { "type": "boolean" },
+            "canSuffix": { "type": "boolean" },
+            "canStandAlone": { "type": "boolean" },
+            "preferredPosition": { "type": "string", "enum": ["front", "end", "middle", "any"] }
+          }
+        },
+
+        "combinationRules": {
+          "type": "object",
+          "required": ["dropsEnding", "insertLinkingVowel", "mutations"],
+          "additionalProperties": false,
+          "properties": {
+            "dropsEnding": { "type": "array", "items": { "type": "string" } },
+            "insertLinkingVowel": { "type": "array", "items": { "type": "string" } },
+            "mutations": { "type": "object", "additionalProperties": { "type": "string" } },
+            "note": { "type": "string" }
+          }
+        },
+
+        "compatibility": {
+          "type": "object",
+          "required": ["preferredLanguages", "preferredSemanticPartners"],
+          "additionalProperties": false,
+          "properties": {
+            "preferredLanguages": { "type": "array", "items": { "type": "string" } },
+            "preferredSemanticPartners": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+
+        "examples": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+
+        "weight": {
+          "type": "object",
+          "required": ["frequency", "rarity", "angelicSuitability"],
+          "additionalProperties": false,
+          "properties": {
+            "frequency": { "type": "number", "minimum": 0, "maximum": 1 },
+            "rarity": { "type": "number", "minimum": 0, "maximum": 1 },
+            "angelicSuitability": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      }
+    }
+  }
+}
