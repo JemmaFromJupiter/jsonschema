@@ -1,15 +1,35 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/JemmaFromJupiter/jsonschema/refs/heads/main/schema/ancient_languages_lexicon.schema.json",
-  "title": "Ancient Name Generator Lexical Database",
-  "description": "Validates the v3 concept-grouped lexicon: languageRegistry + categoryRegistry + an array of concept entries, each holding one or more per-language lexicalElements.",
+  "$schema": "http://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/JemmaFromJupiter/jsonschema/refs/heads/main/schema/languages_lexicon.schema.json",
+  "title": "Language Lexical Database",
+  "description": "Validates version 3 of the concept-grouped lexicon: languageRegistry + categoryRegistry + an array of concept entries, each holding one or more per-language lexicalElements.",
   "type": "object",
   "required": ["systemInfo", "languageRegistry", "categoryRegistry", "lexicon"],
   "additionalProperties": false,
   "properties": {
     "systemInfo": {
       "type": "object",
-      "description": "Free-form metadata about the dataset itself; not structurally validated beyond being an object."
+      "description": "Free-form metadata about the dataset itself; somewhat structurally validated.",
+      "required": ["name", "version"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "changelog": {
+          "type": "array"
+        },
+        "conventions": {
+          "description": "Any conventions for IDs, naming, etc.",
+          "type": "object",
+          "additionalProperties": false
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
     },
 
     "languageRegistry": {
@@ -187,12 +207,12 @@
 
         "weight": {
           "type": "object",
-          "required": ["frequency", "rarity", "ancientSuitability"],
+          "required": ["frequency", "rarity", "suitability"],
           "additionalProperties": false,
           "properties": {
             "frequency": { "type": "number", "minimum": 0, "maximum": 1 },
             "rarity": { "type": "number", "minimum": 0, "maximum": 1 },
-            "ancientSuitability": { "type": "number", "minimum": 0, "maximum": 1 }
+            "suitability": { "type": "number", "minimum": 0, "maximum": 1 }
           }
         }
       }
